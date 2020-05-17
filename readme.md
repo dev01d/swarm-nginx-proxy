@@ -87,8 +87,6 @@ services:
       - DEFAULT_EMAIL=your@email.com
       - NGINX_PROXY_CONTAINER=nginx-proxy
       - NGINX_DOCKER_GEN_CONTAINER=nginx-proxy
-    depends_on:
-      - 'nginx-proxy'
     deploy:
       placement:
         constraints:
