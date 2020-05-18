@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  nginx-proxy:
+    image: dev01d/nginx-proxy:alpine
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - nginx-certs:/etc/nginx/certs:ro
+      - nginx-vhosts:/etc/nginx/vhost.d
+    ports:
+      - '80:80'
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  proxy:
+    driver: overlay
+    name: proxy
+
+volumes:
+  nginx-certs:
+  nginx-vhosts:

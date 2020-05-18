@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  nginx-proxy:
+    image: dev01d/nginx-proxy:alpine
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - nginx-certs:/etc/nginx/certs:ro
+      - nginx-vhosts:/etc/nginx/vhost.d
+      - nginx-letsencrypt-challenge:/usr/share/nginx/html
+    ports:
+      - '80:80'
+      - '443:443'
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  letsencrypt-gen:
+    image: jrcs/letsencrypt-nginx-proxy-companion:latest
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nginx-certs:/etc/nginx/certs:rw
+      - nginx-vhosts:/etc/nginx/vhost.d
+      - nginx-letsencrypt-challenge:/usr/share/nginx/html
+    environment:
+      - DEFAULT_EMAIL=your@email.com
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+      - NGINX_DOCKER_GEN_CONTAINER=nginx-proxy
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  proxy:
+    driver: overlay
+    name: proxy
+
+volumes:
+  nginx-certs:
+  nginx-vhosts:
+  nginx-letsencrypt-challenge:
